@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, useCallback } from 'react'
-import fetch from './request'
-import { isFunction, getDataField } from './utils'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
+import { isFunction, getDataField } from './utils'
+import { QContext } from './context'
+import { create as createRequest, CreateAxiosDefaults } from './request'
 
 export interface IParams {
   [key: string]: any
@@ -21,8 +22,19 @@ export interface IQueryProps {
   formatter<T>(res: T): T
 }
 
+export interface IConfig {
+  request?: CreateAxiosDefaults
+  [key: string]: any
+}
+
 const Query: React.FC<IQueryProps> = (props) => {
   const { children, url, method = 'get', params, onError, onSuccess, onFinally, onBefore, formatter } = props
+
+  const config: IConfig = useContext(QContext)
+
+  useEffect(() => {
+    createRequest(config.request)
+  }, [])
 
   const dataField: string = getDataField(children)
 
